@@ -102,7 +102,8 @@ static int lookup_kas_proc(__u64 pc, struct loc_result *location)
 		 *  - "%pK %c %s\t[%s]\n" (for module-provided symbols)
 		 */
 		fscanf(pf, "%llx %*s %ms [ %*[^]] ]", &ppc, &name);
-		uppc = (__u64)ppc;
+		uppc = (__u32)ppc;
+
 		if ((uipc >= ulpc) &&
 		    (uipc < uppc)) {
 			/*
