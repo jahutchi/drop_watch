@@ -343,6 +343,7 @@ void handle_dm_alert_msg(struct netlink_message *msg, int err)
 			printf("Alert limit reached, deactivating!\n");
 			state = STATE_RQST_DEACTIVATE;
 		}
+		fflush(stdout);
 	}	
 
 out_free:
