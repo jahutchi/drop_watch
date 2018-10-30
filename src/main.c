@@ -38,6 +38,7 @@
 #include <netlink/netlink.h>
 #include <netlink/genl/genl.h>
 #include <netlink/genl/ctrl.h>
+#include <time.h>
 
 #include "net_dropmon.h"
 #include "lookup.h"
@@ -315,6 +316,8 @@ void process_rx_message(void)
 void handle_dm_alert_msg(struct netlink_message *msg, int err)
 {
 	int i;
+	time_t t = time(NULL);
+	struct tm tm;
 	struct nlmsghdr *nlh = msg->msg;
 	struct genlmsghdr *glh = nlmsg_data(nlh);
 	struct loc_result res;
@@ -326,13 +329,15 @@ void handle_dm_alert_msg(struct netlink_message *msg, int err)
 
 
 	for (i=0; i < alert->entries; i++) {
+		tm = *localtime(&t);
+
 		void *location;
 		memcpy(&location, alert->points[i].pc, sizeof(void *));
 		if (lookup_symbol(location, &res))
-			printf ("%d drops at location %p\n", alert->points[i].count, location);
+			printf ("%02d:%02d:%02d %d drops at location %p\n", tm.tm_hour, tm.tm_min, tm.tm_sec, alert->points[i].count, location);
 		else
-			printf ("%d drops at %s+%llx (%p)\n",
-				alert->points[i].count, res.symbol, res.offset, location);
+			printf ("%02d:%02d:%02d %d drops at %s+%llx (%p)\n",
+				tm.tm_hour, tm.tm_min, tm.tm_sec, alert->points[i].count, res.symbol, res.offset, location);
 		acount++;
 		if (alimit && (acount == alimit)) {
 			printf("Alert limit reached, deactivating!\n");
